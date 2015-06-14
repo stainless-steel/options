@@ -1,4 +1,4 @@
-/// Data structure for managing named parameters.
+//! Data structure for managing named parameters.
 
 use std::any::Any;
 use std::collections::HashMap;
