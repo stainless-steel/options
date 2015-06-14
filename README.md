@@ -1,6 +1,6 @@
 # Options
 
-It is good to know your options.
+The package provides a data structure for managing named parameters.
 
 ## Contributing
 

@@ -5,5 +5,6 @@ authors = ["Ivan Ukhov <ivan.ukhov@gmail.com>"]
 license = "MIT"
 repository = "https://github.com/stainless-steel/options"
 homepage = "https://github.com/stainless-steel/options"
-documentation = "https://stainless-steel.github.io/options"
-description = "It is good to know your options."
+description = """
+The package provides a data structure for managing named parameters.
+"""
