@@ -38,10 +38,16 @@ impl Options {
                           .and_then(|value| Some(value.clone()))
     }
 
-    /// Get the value of a parameter by reference.
+    /// Get a reference to the value of a parameter.
     #[inline]
     pub fn get_ref<T: Any>(&self, name: &str) -> Option<&T> {
-        self.map.get(name).and_then(|ref value| value.downcast_ref::<T>())
+        self.map.get(name).and_then(|value| value.downcast_ref::<T>())
+    }
+
+    /// Get a mutable reference to the value of a parameter.
+    #[inline]
+    pub fn get_mut<T: Any>(&mut self, name: &str) -> Option<&mut T> {
+        self.map.get_mut(name).and_then(|value| value.downcast_mut::<T>())
     }
 
     /// Set the value of a parameter.
@@ -84,6 +90,22 @@ mod tests {
         test!(options, "b", &true, bool);
         test!(options, "c", &"Hi, there!", &str);
         test!(options, "d", "Hello, world!", String);
+    }
+
+    #[test]
+    fn get_mut() {
+        macro_rules! test(
+            ($options:expr, $name:expr, $value:expr, $kind:ty) => ({
+                *$options.get_mut::<$kind>($name).unwrap() = $value;
+                assert_eq!($options.get::<$kind>($name).unwrap(), $value);
+            });
+        );
+
+        let mut options = setup();
+        test!(options, "a", 24, i32);
+        test!(options, "b", false, bool);
+        test!(options, "c", "Hi, here!", &str);
+        test!(options, "d", "Bye, world!".to_string(), String);
     }
 
     fn setup() -> Options {
