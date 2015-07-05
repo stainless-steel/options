@@ -7,5 +7,4 @@ repository = "https://github.com/stainless-steel/options"
 homepage = "https://github.com/stainless-steel/options"
 documentation = "https://stainless-steel.github.io/options"
 description = """
-The package provides a data structure for managing named parameters.
-"""
+The package provides a data structure for managing named parameters."""
