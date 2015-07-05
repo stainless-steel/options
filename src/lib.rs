@@ -20,15 +20,17 @@ use std::any::Any;
 use std::collections::hash_map::{self, HashMap};
 use std::iter;
 
+type Key = String;
+type Value = Box<Any>;
+
 /// A collection of named parameters.
 pub struct Options {
-    map: HashMap<String, Box<Any>>,
+    map: HashMap<Key, Value>,
 }
 
-/// An iterator over parameters’ names.
+/// An iterator over the names of parameters.
 pub struct Names<'l> {
-    iterator: iter::Map<hash_map::Iter<'l, String, Box<Any>>,
-                        fn((&'l String, &'l Box<Any>)) -> &'l str>,
+    iterator: iter::Map<hash_map::Iter<'l, Key, Value>, fn((&'l Key, &'l Value)) -> &'l str>,
 }
 
 impl Options {
@@ -64,10 +66,10 @@ impl Options {
         self
     }
 
-    /// Return an iterator over parameters’ names.
+    /// Return an iterator over the names of the stored parameters.
     #[inline]
     pub fn names<'l>(&'l self) -> Names<'l> {
-        fn first<'l>((name, _): (&'l String, &'l Box<Any>)) -> &'l str { name }
+        fn first<'l>((name, _): (&'l Key, &'l Value)) -> &'l str { name }
         Names { iterator: self.map.iter().map(first) }
     }
 }
