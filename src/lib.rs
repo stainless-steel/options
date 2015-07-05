@@ -20,17 +20,25 @@ use std::any::Any;
 use std::collections::hash_map::{self, HashMap};
 use std::iter;
 
-type Key = String;
-type Value = Box<Any>;
-
 /// A collection of named parameters.
 pub struct Options {
-    map: HashMap<Key, Value>,
+    map: HashMap<Name, Value>,
 }
 
-/// An iterator over the names of parameters.
+/// A parameter name.
+pub type Name = String;
+
+/// A parameter value.
+pub type Value = Box<Any>;
+
+/// An iterator over parameters’ names and mutable values.
+pub struct PairsMut<'l> {
+    iterator: hash_map::IterMut<'l, Name, Value>,
+}
+
+/// An iterator over parameters’ names.
 pub struct Names<'l> {
-    iterator: iter::Map<hash_map::Iter<'l, Key, Value>, fn((&'l Key, &'l Value)) -> &'l str>,
+    iterator: iter::Map<hash_map::Iter<'l, Name, Value>, fn((&'l Name, &'l Value)) -> &'l Name>,
 }
 
 impl Options {
@@ -66,19 +74,43 @@ impl Options {
         self
     }
 
-    /// Return an iterator over the names of the stored parameters.
+    /// Return an iterator over parameters’ names.
     #[inline]
     pub fn names<'l>(&'l self) -> Names<'l> {
-        fn first<'l>((name, _): (&'l Key, &'l Value)) -> &'l str { name }
+        fn first<'l>((name, _): (&'l Name, &'l Value)) -> &'l Name { name }
         Names { iterator: self.map.iter().map(first) }
+    }
+
+    /// Return an iterator over parameters’ names and mutable values.
+    pub fn iter_mut<'l>(&'l mut self) -> PairsMut<'l> {
+        PairsMut { iterator: self.map.iter_mut() }
+    }
+}
+
+impl<'l> Iterator for PairsMut<'l> {
+    type Item = (&'l Name, &'l mut Value);
+
+    #[inline]
+    fn next(&mut self) -> Option<(&'l Name, &'l mut Value)> {
+        self.iterator.next()
+    }
+}
+
+impl<'l> IntoIterator for &'l mut Options {
+    type Item = (&'l Name, &'l mut Value);
+    type IntoIter = PairsMut<'l>;
+
+    #[inline]
+    fn into_iter(self) -> PairsMut<'l> {
+        self.iter_mut()
     }
 }
 
 impl<'l> Iterator for Names<'l> {
-    type Item = &'l str;
+    type Item = &'l Name;
 
     #[inline]
-    fn next(&mut self) -> Option<&'l str> {
+    fn next(&mut self) -> Option<&'l Name> {
         self.iterator.next()
     }
 }
@@ -131,6 +163,23 @@ mod tests {
         test!(options, "b", false, bool);
         test!(options, "c", "Hi, here!", &str);
         test!(options, "d", "Bye, world!".to_string(), String);
+    }
+
+    #[test]
+    fn iter_mut() {
+        let mut options = setup();
+        for (_, value) in &mut options {
+            *value = Box::new(69);
+        }
+
+        macro_rules! test(
+            ($name:expr) => (assert_eq!(options.get_ref::<i32>($name).unwrap(), &69));
+        );
+
+        test!("a");
+        test!("b");
+        test!("c");
+        test!("d");
     }
 
     #[test]
