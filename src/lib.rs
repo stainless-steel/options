@@ -29,7 +29,7 @@ pub struct Options {
 pub type Name = String;
 
 /// A parameter value.
-pub type Value = Box<Any>;
+pub struct Value(Box<Any>);
 
 /// An iterator over names and values.
 pub struct Pairs<'l> {
@@ -56,26 +56,25 @@ impl Options {
     /// Get the value of a parameter.
     #[inline]
     pub fn get<T: Any + Clone>(&self, name: &str) -> Option<T> {
-        self.map.get(name).and_then(|ref value| value.downcast_ref::<T>())
-                          .and_then(|value| Some(value.clone()))
+        self.map.get(name).and_then(|value| value.get())
     }
 
     /// Get a reference to the value of a parameter.
     #[inline]
     pub fn get_ref<T: Any>(&self, name: &str) -> Option<&T> {
-        self.map.get(name).and_then(|value| value.downcast_ref::<T>())
+        self.map.get(name).and_then(|value| value.get_ref())
     }
 
     /// Get a mutable reference to the value of a parameter.
     #[inline]
     pub fn get_mut<T: Any>(&mut self, name: &str) -> Option<&mut T> {
-        self.map.get_mut(name).and_then(|value| value.downcast_mut::<T>())
+        self.map.get_mut(name).and_then(|value| value.get_mut())
     }
 
     /// Set the value of a parameter.
     #[inline]
     pub fn set<'l, T: Any>(&'l mut self, name: &str, value: T) -> &'l mut Options {
-        self.map.insert(name.to_string(), Box::new(value));
+        self.map.insert(name.to_string(), Value(Box::new(value)));
         self
     }
 
@@ -94,6 +93,32 @@ impl Options {
     pub fn names<'l>(&'l self) -> Names<'l> {
         fn first<'l>((name, _): (&'l Name, &'l Value)) -> &'l Name { name }
         Names { iterator: self.map.iter().map(first) }
+    }
+}
+
+impl Value {
+    /// Get the value.
+    #[inline]
+    pub fn get<T: Any + Clone>(&self) -> Option<T> {
+        self.0.downcast_ref::<T>().and_then(|value| Some(value.clone()))
+    }
+
+    /// Get a reference to the value.
+    #[inline]
+    pub fn get_ref<T: Any>(&self) -> Option<&T> {
+        self.0.downcast_ref::<T>()
+    }
+
+    /// Get a mutable reference to the value.
+    #[inline]
+    pub fn get_mut<T: Any>(&mut self) -> Option<&mut T> {
+        self.0.downcast_mut::<T>()
+    }
+
+    /// Set the value.
+    #[inline]
+    pub fn set<T: Any>(&mut self, value: T) {
+        self.0 = Box::new(value);
     }
 }
 
@@ -201,7 +226,7 @@ mod tests {
     fn iter_mut() {
         let mut options = setup();
         for (_, value) in &mut options {
-            *value = Box::new(69);
+            value.set(69);
         }
 
         macro_rules! test(
