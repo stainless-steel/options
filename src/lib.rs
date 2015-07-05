@@ -31,12 +31,17 @@ pub type Name = String;
 /// A parameter value.
 pub type Value = Box<Any>;
 
-/// An iterator over parameters’ names and mutable values.
+/// An iterator over names and values.
+pub struct Pairs<'l> {
+    iterator: hash_map::Iter<'l, Name, Value>,
+}
+
+/// An iterator over names and mutable values.
 pub struct PairsMut<'l> {
     iterator: hash_map::IterMut<'l, Name, Value>,
 }
 
-/// An iterator over parameters’ names.
+/// An iterator over names.
 pub struct Names<'l> {
     iterator: iter::Map<hash_map::Iter<'l, Name, Value>, fn((&'l Name, &'l Value)) -> &'l Name>,
 }
@@ -74,25 +79,31 @@ impl Options {
         self
     }
 
-    /// Return an iterator over parameters’ names.
+    /// Return an iterator over names and values.
+    pub fn iter<'l>(&'l self) -> Pairs<'l> {
+        Pairs { iterator: self.map.iter() }
+    }
+
+    /// Return an iterator over names and mutable values.
+    pub fn iter_mut<'l>(&'l mut self) -> PairsMut<'l> {
+        PairsMut { iterator: self.map.iter_mut() }
+    }
+
+    /// Return an iterator over names.
     #[inline]
     pub fn names<'l>(&'l self) -> Names<'l> {
         fn first<'l>((name, _): (&'l Name, &'l Value)) -> &'l Name { name }
         Names { iterator: self.map.iter().map(first) }
     }
-
-    /// Return an iterator over parameters’ names and mutable values.
-    pub fn iter_mut<'l>(&'l mut self) -> PairsMut<'l> {
-        PairsMut { iterator: self.map.iter_mut() }
-    }
 }
 
-impl<'l> Iterator for PairsMut<'l> {
-    type Item = (&'l Name, &'l mut Value);
+impl<'l> IntoIterator for &'l Options {
+    type Item = (&'l Name, &'l Value);
+    type IntoIter = Pairs<'l>;
 
     #[inline]
-    fn next(&mut self) -> Option<(&'l Name, &'l mut Value)> {
-        self.iterator.next()
+    fn into_iter(self) -> Pairs<'l> {
+        self.iter()
     }
 }
 
@@ -103,6 +114,24 @@ impl<'l> IntoIterator for &'l mut Options {
     #[inline]
     fn into_iter(self) -> PairsMut<'l> {
         self.iter_mut()
+    }
+}
+
+impl<'l> Iterator for Pairs<'l> {
+    type Item = (&'l Name, &'l Value);
+
+    #[inline]
+    fn next(&mut self) -> Option<(&'l Name, &'l Value)> {
+        self.iterator.next()
+    }
+}
+
+impl<'l> Iterator for PairsMut<'l> {
+    type Item = (&'l Name, &'l mut Value);
+
+    #[inline]
+    fn next(&mut self) -> Option<(&'l Name, &'l mut Value)> {
+        self.iterator.next()
     }
 }
 
