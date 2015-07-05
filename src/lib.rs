@@ -17,15 +17,22 @@
 //! ```
 
 use std::any::Any;
-use std::collections::HashMap;
+use std::collections::hash_map::{self, HashMap};
+use std::iter;
 
 /// A collection of named parameters.
 pub struct Options {
     map: HashMap<String, Box<Any>>,
 }
 
+/// An iterator over parameters’ names.
+pub struct Names<'l> {
+    iterator: iter::Map<hash_map::Iter<'l, String, Box<Any>>,
+                        fn((&'l String, &'l Box<Any>)) -> &'l str>,
+}
+
 impl Options {
-    /// Create a new collection of named parameters.
+    /// Create a collection of named parameters.
     #[inline]
     pub fn new() -> Options {
         Options { map: HashMap::new() }
@@ -55,6 +62,22 @@ impl Options {
     pub fn set<'l, T: Any>(&'l mut self, name: &str, value: T) -> &'l mut Options {
         self.map.insert(name.to_string(), Box::new(value));
         self
+    }
+
+    /// Return an iterator over parameters’ names.
+    #[inline]
+    pub fn names<'l>(&'l self) -> Names<'l> {
+        fn first<'l>((name, _): (&'l String, &'l Box<Any>)) -> &'l str { name }
+        Names { iterator: self.map.iter().map(first) }
+    }
+}
+
+impl<'l> Iterator for Names<'l> {
+    type Item = &'l str;
+
+    #[inline]
+    fn next(&mut self) -> Option<&'l str> {
+        self.iterator.next()
     }
 }
 
@@ -106,6 +129,14 @@ mod tests {
         test!(options, "b", false, bool);
         test!(options, "c", "Hi, here!", &str);
         test!(options, "d", "Bye, world!".to_string(), String);
+    }
+
+    #[test]
+    fn names() {
+        let options = setup();
+        let mut names = options.names().collect::<Vec<_>>();
+        names.sort();
+        assert_eq!(names, &["a", "b", "c", "d"]);
     }
 
     fn setup() -> Options {
