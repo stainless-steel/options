@@ -121,48 +121,51 @@ mod tests {
 
     #[test]
     fn get() {
+        let options = setup();
+
         macro_rules! test(
-            ($options:expr, $name:expr, $value:expr, $kind:ty) => (
-                assert_eq!($options.get::<$kind>($name).unwrap(), $value)
+            ($name:expr, $value:expr, $kind:ty) => (
+                assert_eq!(options.get::<$kind>($name).unwrap(), $value)
             );
         );
 
-        let options = setup();
-        test!(options, "a", 42, i32);
-        test!(options, "b", true, bool);
-        test!(options, "c", "Hi, there!", &str);
-        test!(options, "d", "Hello, world!".to_string(), String);
+        test!("a", 42, i32);
+        test!("b", true, bool);
+        test!("c", "Hi, there!", &str);
+        test!("d", "Hello, world!".to_string(), String);
     }
 
     #[test]
     fn get_ref() {
+        let options = setup();
+
         macro_rules! test(
-            ($options:expr, $name:expr, $value:expr, $kind:ty) => (
-                assert_eq!($options.get_ref::<$kind>($name).unwrap(), $value)
+            ($name:expr, $value:expr, $kind:ty) => (
+                assert_eq!(options.get_ref::<$kind>($name).unwrap(), $value)
             );
         );
 
-        let options = setup();
-        test!(options, "a", &42, i32);
-        test!(options, "b", &true, bool);
-        test!(options, "c", &"Hi, there!", &str);
-        test!(options, "d", "Hello, world!", String);
+        test!("a", &42, i32);
+        test!("b", &true, bool);
+        test!("c", &"Hi, there!", &str);
+        test!("d", "Hello, world!", String);
     }
 
     #[test]
     fn get_mut() {
+        let mut options = setup();
+
         macro_rules! test(
-            ($options:expr, $name:expr, $value:expr, $kind:ty) => ({
-                *$options.get_mut::<$kind>($name).unwrap() = $value;
-                assert_eq!($options.get::<$kind>($name).unwrap(), $value);
+            ($name:expr, $value:expr, $kind:ty) => ({
+                *options.get_mut::<$kind>($name).unwrap() = $value;
+                assert_eq!(options.get::<$kind>($name).unwrap(), $value);
             });
         );
 
-        let mut options = setup();
-        test!(options, "a", 24, i32);
-        test!(options, "b", false, bool);
-        test!(options, "c", "Hi, here!", &str);
-        test!(options, "d", "Bye, world!".to_string(), String);
+        test!("a", 24, i32);
+        test!("b", false, bool);
+        test!("c", "Hi, here!", &str);
+        test!("d", "Bye, world!".to_string(), String);
     }
 
     #[test]
