@@ -31,13 +31,13 @@ pub type Name = String;
 /// A parameter value.
 pub struct Value(Box<Any>);
 
-/// An iterator over names and values.
-pub struct Pairs<'l> {
+/// An iterator over parameters.
+pub struct Parameters<'l> {
     iterator: hash_map::Iter<'l, Name, Value>,
 }
 
-/// An iterator over names and mutable values.
-pub struct PairsMut<'l> {
+/// An iterator over mutable parameters.
+pub struct ParametersMut<'l> {
     iterator: hash_map::IterMut<'l, Name, Value>,
 }
 
@@ -78,14 +78,14 @@ impl Options {
         self
     }
 
-    /// Return an iterator over names and values.
-    pub fn iter<'l>(&'l self) -> Pairs<'l> {
-        Pairs { iterator: self.map.iter() }
+    /// Return an iterator over parameters.
+    pub fn iter<'l>(&'l self) -> Parameters<'l> {
+        Parameters { iterator: self.map.iter() }
     }
 
-    /// Return an iterator over names and mutable values.
-    pub fn iter_mut<'l>(&'l mut self) -> PairsMut<'l> {
-        PairsMut { iterator: self.map.iter_mut() }
+    /// Return an iterator over mutable parameters.
+    pub fn iter_mut<'l>(&'l mut self) -> ParametersMut<'l> {
+        ParametersMut { iterator: self.map.iter_mut() }
     }
 
     /// Return an iterator over names.
@@ -124,25 +124,25 @@ impl Value {
 
 impl<'l> IntoIterator for &'l Options {
     type Item = (&'l Name, &'l Value);
-    type IntoIter = Pairs<'l>;
+    type IntoIter = Parameters<'l>;
 
     #[inline]
-    fn into_iter(self) -> Pairs<'l> {
+    fn into_iter(self) -> Parameters<'l> {
         self.iter()
     }
 }
 
 impl<'l> IntoIterator for &'l mut Options {
     type Item = (&'l Name, &'l mut Value);
-    type IntoIter = PairsMut<'l>;
+    type IntoIter = ParametersMut<'l>;
 
     #[inline]
-    fn into_iter(self) -> PairsMut<'l> {
+    fn into_iter(self) -> ParametersMut<'l> {
         self.iter_mut()
     }
 }
 
-impl<'l> Iterator for Pairs<'l> {
+impl<'l> Iterator for Parameters<'l> {
     type Item = (&'l Name, &'l Value);
 
     #[inline]
@@ -151,7 +151,7 @@ impl<'l> Iterator for Pairs<'l> {
     }
 }
 
-impl<'l> Iterator for PairsMut<'l> {
+impl<'l> Iterator for ParametersMut<'l> {
     type Item = (&'l Name, &'l mut Value);
 
     #[inline]
