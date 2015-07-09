@@ -22,9 +22,7 @@ use std::iter;
 
 /// A collection of named parameters.
 #[derive(Debug)]
-pub struct Options {
-    map: HashMap<Name, Value>,
-}
+pub struct Options(HashMap<Name, Value>);
 
 /// A parameter name.
 pub type Name = String;
@@ -52,49 +50,49 @@ impl Options {
     /// Create a collection of named parameters.
     #[inline]
     pub fn new() -> Options {
-        Options { map: HashMap::new() }
+        Options(HashMap::new())
     }
 
     /// Get the value of a parameter.
     #[inline]
     pub fn get<T: Any + Clone>(&self, name: &str) -> Option<T> {
-        self.map.get(name).and_then(|value| value.get())
+        self.0.get(name).and_then(|value| value.get())
     }
 
     /// Get a reference to the value of a parameter.
     #[inline]
     pub fn get_ref<T: Any>(&self, name: &str) -> Option<&T> {
-        self.map.get(name).and_then(|value| value.get_ref())
+        self.0.get(name).and_then(|value| value.get_ref())
     }
 
     /// Get a mutable reference to the value of a parameter.
     #[inline]
     pub fn get_mut<T: Any>(&mut self, name: &str) -> Option<&mut T> {
-        self.map.get_mut(name).and_then(|value| value.get_mut())
+        self.0.get_mut(name).and_then(|value| value.get_mut())
     }
 
     /// Set the value of a parameter.
     #[inline]
     pub fn set<'l, T: Any>(&'l mut self, name: &str, value: T) -> &'l mut Options {
-        self.map.insert(name.to_string(), Value(Box::new(value)));
+        self.0.insert(name.to_string(), Value(Box::new(value)));
         self
     }
 
     /// Return an iterator over parameters.
     pub fn iter<'l>(&'l self) -> Parameters<'l> {
-        Parameters { iterator: self.map.iter() }
+        Parameters { iterator: self.0.iter() }
     }
 
     /// Return an iterator over mutable parameters.
     pub fn iter_mut<'l>(&'l mut self) -> ParametersMut<'l> {
-        ParametersMut { iterator: self.map.iter_mut() }
+        ParametersMut { iterator: self.0.iter_mut() }
     }
 
     /// Return an iterator over names.
     #[inline]
     pub fn names<'l>(&'l self) -> Names<'l> {
         fn first<'l>((name, _): (&'l Name, &'l Value)) -> &'l Name { name }
-        Names { iterator: self.map.iter().map(first) }
+        Names { iterator: self.0.iter().map(first) }
     }
 }
 
