@@ -21,6 +21,7 @@ use std::collections::hash_map::{self, HashMap};
 use std::iter;
 
 /// A collection of named parameters.
+#[derive(Debug)]
 pub struct Options {
     map: HashMap<Name, Value>,
 }
@@ -29,6 +30,7 @@ pub struct Options {
 pub type Name = String;
 
 /// A parameter value.
+#[derive(Debug)]
 pub struct Value(Box<Any>);
 
 /// An iterator over parameters.
