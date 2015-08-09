@@ -187,6 +187,7 @@ mod tests {
         test!("b", true, bool);
         test!("c", "Hi, there!", &str);
         test!("d", "Hello, world!".to_string(), String);
+        test!("e", vec![4u8, 2u8], Vec<u8>);
     }
 
     #[test]
@@ -203,6 +204,7 @@ mod tests {
         test!("b", &true, bool);
         test!("c", &"Hi, there!", &str);
         test!("d", "Hello, world!", String);
+        test!("e", &vec![4u8, 2u8], Vec<u8>);
     }
 
     #[test]
@@ -220,6 +222,7 @@ mod tests {
         test!("b", false, bool);
         test!("c", "Hi, here!", &str);
         test!("d", "Bye, world!".to_string(), String);
+        test!("e", vec![2u8, 4u8], Vec<u8>);
     }
 
     #[test]
@@ -237,6 +240,7 @@ mod tests {
         test!("b");
         test!("c");
         test!("d");
+        test!("e");
     }
 
     #[test]
@@ -244,7 +248,7 @@ mod tests {
         let options = setup();
         let mut names = options.names().collect::<Vec<_>>();
         names.sort();
-        assert_eq!(names, &["a", "b", "c", "d"]);
+        assert_eq!(names, &["a", "b", "c", "d", "e"]);
     }
 
     fn setup() -> Options {
@@ -253,7 +257,8 @@ mod tests {
         options.set("a", 42)
                .set("b", true)
                .set("c", "Hi, there!")
-               .set("d", "Hello, world!".to_string());
+               .set("d", "Hello, world!".to_string())
+               .set("e", vec![4u8, 2u8]);
 
         options
     }
