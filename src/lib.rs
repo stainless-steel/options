@@ -78,6 +78,12 @@ impl Options {
         self
     }
 
+    /// Check the presence of a parameter.
+    #[inline]
+    pub fn has(&self, name: &str) -> bool {
+        self.0.contains_key(name)
+    }
+
     /// Return an iterator over parameters.
     pub fn iter<'l>(&'l self) -> Parameters<'l> {
         Parameters { iterator: self.0.iter() }
@@ -241,6 +247,13 @@ mod tests {
         test!("c");
         test!("d");
         test!("e");
+    }
+
+    #[test]
+    fn has() {
+        let options = setup();
+        assert_eq!(options.has("a"), true);
+        assert_eq!(options.has("z"), false);
     }
 
     #[test]
