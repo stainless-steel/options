@@ -1,9 +1,9 @@
 [package]
 name = "options"
-version = "0.5.0"
+version = "0.5.1"
 license = "Apache-2.0/MIT"
 authors = ["Ivan Ukhov <ivan.ukhov@gmail.com>"]
 description = "The package provides a data structure for managing named parameters."
-documentation = "https://stainless-steel.github.io/options"
+documentation = "https://docs.rs/options"
 homepage = "https://github.com/stainless-steel/options"
 repository = "https://github.com/stainless-steel/options"
