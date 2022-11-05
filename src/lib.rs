@@ -29,7 +29,7 @@ pub type Name = String;
 
 /// A parameter value.
 #[derive(Debug)]
-pub struct Value(Box<Any>);
+pub struct Value(Box<dyn Any>);
 
 /// An iterator over parameters.
 pub struct Parameters<'l> {
