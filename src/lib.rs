@@ -86,19 +86,27 @@ impl Options {
 
     /// Return an iterator over parameters.
     pub fn iter<'l>(&'l self) -> Parameters<'l> {
-        Parameters { iterator: self.0.iter() }
+        Parameters {
+            iterator: self.0.iter(),
+        }
     }
 
     /// Return an iterator over mutable parameters.
     pub fn iter_mut<'l>(&'l mut self) -> ParametersMut<'l> {
-        ParametersMut { iterator: self.0.iter_mut() }
+        ParametersMut {
+            iterator: self.0.iter_mut(),
+        }
     }
 
     /// Return an iterator over names.
     #[inline]
     pub fn names<'l>(&'l self) -> Names<'l> {
-        fn first<'l>((name, _): (&'l Name, &'l Value)) -> &'l Name { name }
-        Names { iterator: self.0.iter().map(first) }
+        fn first<'l>((name, _): (&'l Name, &'l Value)) -> &'l Name {
+            name
+        }
+        Names {
+            iterator: self.0.iter().map(first),
+        }
     }
 }
 
@@ -106,7 +114,9 @@ impl Value {
     /// Get the value.
     #[inline]
     pub fn get<T: Any + Clone>(&self) -> Option<T> {
-        self.0.downcast_ref::<T>().and_then(|value| Some(value.clone()))
+        self.0
+            .downcast_ref::<T>()
+            .and_then(|value| Some(value.clone()))
     }
 
     /// Get a reference to the value.
@@ -267,11 +277,12 @@ mod tests {
     fn setup() -> Options {
         let mut options = Options::new();
 
-        options.set("a", 42)
-               .set("b", true)
-               .set("c", "Hi, there!")
-               .set("d", "Hello, world!".to_string())
-               .set("e", vec![4u8, 2u8]);
+        options
+            .set("a", 42)
+            .set("b", true)
+            .set("c", "Hi, there!")
+            .set("d", "Hello, world!".to_string())
+            .set("e", vec![4u8, 2u8]);
 
         options
     }
