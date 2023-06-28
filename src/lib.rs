@@ -19,7 +19,6 @@
 
 use std::any::Any;
 use std::collections::hash_map::{self, HashMap};
-use std::iter;
 
 /// A collection of named parameters.
 #[derive(Debug)]
@@ -44,12 +43,15 @@ pub struct ParametersMut<'l> {
 
 /// An iterator over names.
 pub struct Names<'l> {
-    iterator: iter::Map<hash_map::Iter<'l, Name, Value>, fn((&'l Name, &'l Value)) -> &'l Name>,
+    #[allow(clippy::type_complexity)]
+    iterator:
+        std::iter::Map<hash_map::Iter<'l, Name, Value>, fn((&'l Name, &'l Value)) -> &'l Name>,
 }
 
 impl Options {
     /// Create a collection of named parameters.
     #[inline]
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Options {
         Options(HashMap::new())
     }
@@ -86,14 +88,14 @@ impl Options {
     }
 
     /// Return an iterator over parameters.
-    pub fn iter<'l>(&'l self) -> Parameters<'l> {
+    pub fn iter(&self) -> Parameters<'_> {
         Parameters {
             iterator: self.0.iter(),
         }
     }
 
     /// Return an iterator over mutable parameters.
-    pub fn iter_mut<'l>(&'l mut self) -> ParametersMut<'l> {
+    pub fn iter_mut(&mut self) -> ParametersMut<'_> {
         ParametersMut {
             iterator: self.0.iter_mut(),
         }
@@ -101,7 +103,7 @@ impl Options {
 
     /// Return an iterator over names.
     #[inline]
-    pub fn names<'l>(&'l self) -> Names<'l> {
+    pub fn names(&self) -> Names<'_> {
         fn first<'l>((name, _): (&'l Name, &'l Value)) -> &'l Name {
             name
         }
@@ -115,9 +117,7 @@ impl Value {
     /// Get the value.
     #[inline]
     pub fn get<T: Any + Clone>(&self) -> Option<T> {
-        self.0
-            .downcast_ref::<T>()
-            .and_then(|value| Some(value.clone()))
+        self.0.downcast_ref::<T>().cloned()
     }
 
     /// Get a reference to the value.
@@ -188,7 +188,7 @@ impl<'l> Iterator for Names<'l> {
 
 #[cfg(test)]
 mod tests {
-    use Options;
+    use super::Options;
 
     #[test]
     fn get() {
