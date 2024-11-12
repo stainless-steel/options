@@ -5,7 +5,7 @@
 //! ```
 //! use options::Options;
 //!
-//! let mut options = Options::new();
+//! let mut options = Options::default();
 //!
 //! options
 //!     .set("foo", 42)
@@ -21,7 +21,7 @@ use std::any::Any;
 use std::collections::hash_map::{HashMap, Iter, IterMut};
 
 /// A collection of named parameters.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Options(HashMap<Name, Value>);
 
 /// A parameter name.
@@ -48,13 +48,6 @@ pub struct Names<'l> {
 }
 
 impl Options {
-    /// Create a collection of named parameters.
-    #[inline]
-    #[allow(clippy::new_without_default)]
-    pub fn new() -> Options {
-        Options(HashMap::new())
-    }
-
     /// Get the value of a parameter.
     #[inline]
     pub fn get<T: Any + Clone>(&self, name: &str) -> Option<T> {
@@ -275,7 +268,7 @@ mod tests {
     }
 
     fn setup() -> Options {
-        let mut options = Options::new();
+        let mut options = Options::default();
 
         options
             .set("a", 42)
