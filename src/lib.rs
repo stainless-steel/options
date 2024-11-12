@@ -68,8 +68,8 @@ impl Options {
 
     /// Set the value of a parameter.
     #[inline]
-    pub fn set<'l, T: Any>(&'l mut self, name: &str, value: T) -> &'l mut Options {
-        self.0.insert(name.to_string(), Value(Box::new(value)));
+    pub fn set<T: Into<String>, U: Any>(&mut self, name: T, value: U) -> &mut Options {
+        self.0.insert(name.into(), Value(Box::new(value)));
         self
     }
 
