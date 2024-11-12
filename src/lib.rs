@@ -18,7 +18,7 @@
 //! ```
 
 use std::any::Any;
-use std::collections::hash_map::{self, HashMap};
+use std::collections::hash_map::{HashMap, Iter, IterMut};
 
 /// A collection of named parameters.
 #[derive(Debug)]
@@ -33,19 +33,18 @@ pub struct Value(Box<dyn Any>);
 
 /// An iterator over parameters.
 pub struct Parameters<'l> {
-    iterator: hash_map::Iter<'l, Name, Value>,
+    iterator: Iter<'l, Name, Value>,
 }
 
 /// An iterator over mutable parameters.
 pub struct ParametersMut<'l> {
-    iterator: hash_map::IterMut<'l, Name, Value>,
+    iterator: IterMut<'l, Name, Value>,
 }
 
 /// An iterator over names.
 pub struct Names<'l> {
     #[allow(clippy::type_complexity)]
-    iterator:
-        std::iter::Map<hash_map::Iter<'l, Name, Value>, fn((&'l Name, &'l Value)) -> &'l Name>,
+    iterator: std::iter::Map<Iter<'l, Name, Value>, fn((&'l Name, &'l Value)) -> &'l Name>,
 }
 
 impl Options {
